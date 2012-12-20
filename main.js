@@ -250,7 +250,7 @@ function Tank(){
         for(var i in tanks){
             tanks[i].draw();
         }
-//        gLoop = setTimeout(GameLoop, 1000 / 50);
+        gLoop = setTimeout(GameLoop, 1000 / 50);
     }
 
     GameLoop();
@@ -260,5 +260,5 @@ function Tank(){
 }
 
 window.addEventListener( 'load', function(){
-    bm = new Tank
+    bm = new Tank;
 });
