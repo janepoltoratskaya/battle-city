@@ -24,41 +24,42 @@ function Tank(){
     canvas.height = bgH;
 
     var DrawYouWin = function(){
-        var map=[
-          [0,0,0,0,0,0,0,0,0,0,0,0,0],
-          [0,4,0,4,0,0,0,0,0,0,0,0,0],
-          [0,4,0,4,0,4,4,4,0,4,0,4,0],
-          [0,0,4,0,0,4,0,4,0,4,0,4,0],
-          [0,0,4,0,0,4,4,4,0,4,4,4,0],
-          [0,0,0,0,0,0,0,0,0,0,0,0,0],
-          [0,4,0,0,0,4,0,4,0,4,4,0,0],
-          [0,4,0,4,0,4,0,4,0,4,0,4,0],
-          [0,0,4,0,4,0,0,4,0,4,0,4,0],
-          [0,0,0,0,0,0,0,0,0,0,0,0,0]
-      ]
-        drawAll(map);
-    }
-    var DrawYouLose = function(){
-        var map=[
-          [,,,,,,,,,,,,],
-          [,,,,,,,,,,,,],
-          [,,,,,,,,,,,,],
-          [,,,,,,,,,,,,],
-          [,,,,4,,4,,4,,,,],
-          [,,,,,,,,,,,,],
-          [,,,,,,,,,,,,],
-          [,,,,,,,,,,,,],
-          [,,,,,,,,,,,,],
-          [,,,,,,,,,,,,],
-      ]
-        drawAll(map);
-    }
-    function drawAll(map){
         context.fillStyle = "#000000";
         context.beginPath();
         context.fillRect(0, 0, bgW, bgH);
         context.fill();
-        
+        context.fillStyle = "red";
+        context.font = "20pt Arial";
+        context.fillText("You Win", 360, 320);
+    }
+    var DrawYouLose = function(){
+        context.fillStyle = "#000000";
+        context.beginPath();
+        context.fillRect(0, 0, bgW, bgH);
+        context.fill();
+        context.fillStyle = "red";
+        context.font = "20pt Arial";
+        context.fillText("Game over", 340, 320);
+    }
+    
+    var map=[
+      [0,0,0,0,0,0,0,0,0,0,0,0,0],
+      [0,4,0,4,0,4,0,4,0,4,0,4,0],
+      [0,4,0,4,0,0,0,4,0,4,0,4,0],
+      [0,0,0,0,4,4,0,4,0,0,0,0,0],
+      [0,4,0,4,0,4,0,4,0,4,0,4,0],
+      [0,4,0,4,0,4,0,4,0,4,0,4,0],
+      [0,0,0,0,0,4,0,4,0,0,0,0,0],
+      [0,4,0,4,0,4,4,4,4,4,0,4,0],
+      [0,4,0,4,0,4,0,4,0,4,0,4,0],
+      [0,0,0,0,0,0,0,0,0,0,0,0,0]
+  ];
+    var DrawBg = function(){
+        context.fillStyle = "#000000";
+        context.beginPath();
+        context.fillRect(0, 0, bgW, bgH);
+        context.fill();
+
         for(var i=0;i<10;i++){
             for(var j=0;j<13;j++){
                 if(map[i][j]!=0){
@@ -85,22 +86,6 @@ function Tank(){
             img.src=images['l'];
             context.drawImage(img, bgW+10+(i%2)*32,64-(i%2)*12+i*12);
         }
-    }
-    var DrawBg = function(){
-        var map=[
-          [0,0,0,0,0,0,0,0,0,0,0,0,0],
-          [0,4,0,4,0,4,0,4,0,4,0,4,0],
-          [0,4,0,4,0,0,0,4,0,4,0,4,0],
-          [0,0,0,0,4,4,0,4,0,0,0,0,0],
-          [0,4,0,4,0,4,0,4,0,4,0,4,0],
-          [0,4,0,4,0,4,0,4,0,4,0,4,0],
-          [0,0,0,0,0,4,0,4,0,0,0,0,0],
-          [0,4,0,4,0,4,4,4,4,4,0,4,0],
-          [0,4,0,4,0,4,0,4,0,4,0,4,0],
-          [0,0,0,0,0,0,0,0,0,0,0,0,0]
-      ];
-
-        drawAll(map);
 
         context.beginPath();
         for(var key in wallNot){
@@ -325,7 +310,6 @@ function Tank(){
 
         }
     }
-
     createTanks();
     GameLoop();
 
