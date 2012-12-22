@@ -4,7 +4,6 @@ function Tank(){
     context = canvas.getContext('2d'),
     bgW = 64*13, bgH = 64*10,
     tanks=[],
-    gLoop,
 
     map=[
           [0,0,0,0,0,0,0,0,0,0,0,0,0],
@@ -25,8 +24,8 @@ function Tank(){
         context.fillStyle = "#000000";
         context.beginPath();
         context.fillRect(0, 0, bgW, bgH);
-
         context.fill();
+        
         for(var i=0;i<10;i++){
             for(var j=0;j<13;j++){
                 if(map[i][j]!=0){
@@ -47,6 +46,7 @@ function Tank(){
 
     var direction = 'udrl';
     var tankPositions=[['p','u',0,9],['e','d',0,0],['e','d',12,0]];
+    var countETanks =2;
     var wallNot = [];
     function createTanks(){
         var newTank;
@@ -54,11 +54,13 @@ function Tank(){
             newTank = new Player;
             newTank.init(tankPositions[i][0],tankPositions[i][1],64*tankPositions[i][2],64*tankPositions[i][3],i);
             tanks[i] = newTank;
+
         }
     }
     function Player(){
         var that = this;
         that.image = new Image();
+        that.life = 3;
 
         that.init = function(src,direction,x,y,i){
             that.image.src = src;
@@ -79,22 +81,22 @@ function Tank(){
                 switch(that.sign){
                     case 'u':
                         angle = 0;
-                        y -= 4;
+                        if(y-4>=0)y -= 4;
                         imageData = context.getImageData(x,y,64,1);
                         break;
                     case 'd':
                         angle = Math.PI;
-                        y += 4;
+                        if(y+68<=bgH)y += 4;
                         imageData = context.getImageData(x,y+64,64,1);
                         break;
                     case 'r':
                         angle = Math.PI/2;
-                        x += 4;
+                        if(x+68<=bgW)x += 4;
                         imageData = context.getImageData(x+64,y,1,64);
                         break;
                     case 'l':
                         angle = 3*Math.PI/2;
-                        x -= 4;
+                        if(x-4>=0)x -= 4;
                         imageData = context.getImageData(x,y,1,64);
                         break;
                 }
@@ -126,7 +128,6 @@ function Tank(){
         function canMove(imageData){
             for(var i=0;i<imageData.data.length;i=i+4){
                 if(!(imageData.data[i]==0 && imageData.data[i]==imageData.data[i+1] && imageData.data[i+1]==imageData.data[i+2])){
-                    console.log(imageData.data[i],imageData.data[i+1],imageData.data[i+2])
                     return false;
                     break;
                 }
@@ -165,32 +166,30 @@ function Tank(){
             }else{
                 that.move();
             }
+            
+            if(!that.fires.length)
+                that.fire();
         }
         that.isFire = function(x,y){
-            console.log('isFire')
             for(var i in tanks){
-                if(i!=that.i){
+                if(i!=that.i && that.type!=tanks[i].type){
                     if(x>=tanks[i].X&&x<=(tanks[i].X+64)&&y>=tanks[i].Y&&y<=(tanks[i].Y+64) ){
-                        //удаляем вражеский танк
-                        delete tanks[i];
-
-                        //или убираем жизнь
+                        if(tanks[i].type=='p'){
+                            tanks[i].life--;
+                            console.log(tanks[i].life)
+                            //create new tank in start position
+                            tanks[i].init(tankPositions[i][0],tankPositions[i][1],64*tankPositions[i][2],64*tankPositions[i][3],i);
+                        } else {
+                            //удаляем вражеский танк
+                            delete tanks[i];
+                            countETanks--;
+                        }
                     }
                 }
             }
-
-
             return false;
         }
-        that.draw = function(){
-            if(that.type=='e')
-                that.changeDirection();
-
-            context.translate( that.X+32, that.Y+32 );
-            context.rotate( that.angle );
-            context.drawImage(that.image, -32,-32);
-            context.rotate( -that.angle );
-            context.translate( -(that.X+32), -(that.Y+32) );
+        that.doFire = function(){
             if(that.fires.length){
                 var imageData;
                 for(var key in that.fires){
@@ -198,23 +197,8 @@ function Tank(){
                     aY = Math.abs(that.fires[key].sY);
 
                     imageData = context.getImageData(that.fires[key].x-aX*32-that.fires[key].sY,that.fires[key].y-aY*32-that.fires[key].sX,Math.pow(64,aX),Math.pow(64,aY));
-
-                    if(canMove(imageData)){
-                        console.log('move')
-                        context.beginPath();
-                        context.arc(that.fires[key].x, that.fires[key].y, 4, 0, 2 * Math.PI, false);
-
-                        context.fillStyle = "gray";
-                        context.fill();
-
-                        that.fires[key].x += -1*that.fires[key].sY*4;
-                        that.fires[key].y += -1*that.fires[key].sX*4;
-
-                        if(that.fires[key].y<0||that.fires[key].x<0||that.fires[key].x>bgW||that.fires[key].y>bgH){
-                            delete that.fires[key]
-                        }
-                    } else {
-                        console.log('yes')
+                    
+                    if(!(that.fires[key].canMove = canMove(imageData))){
                         if(!that.isFire(that.fires[key].x, that.fires[key].y)){
                             //destroy wall
                             if(that.fires[key].sX==1)//u
@@ -227,12 +211,40 @@ function Tank(){
                             if(that.fires[key].sY==-1)//r
                                 wallNot.push({x:that.fires[key].x,y:that.fires[key].y-32,dx:16,dy:64})
                         }
-                        delete that.fires[key]
+                        delete that.fires.splice(key,1)
+                    }
+                }
+            }
+            return true;
+        }
+        that.draw = function(){
+            if(that.type=='e')
+                that.changeDirection();
+
+            context.translate( that.X+32, that.Y+32 );
+            context.rotate( that.angle );
+            context.drawImage(that.image, -32,-32);
+            context.rotate( -that.angle );
+            context.translate( -(that.X+32), -(that.Y+32) );
+            if(that.fires.length){
+                for(var key in that.fires){
+                    if(that.fires[key].canMove){
+                        context.beginPath();
+                        context.arc(that.fires[key].x, that.fires[key].y, 4, 0, 2 * Math.PI, false);
+
+                        context.fillStyle = "gray";
+                        context.fill();
+
+                        that.fires[key].x += -1*that.fires[key].sY*4;
+                        that.fires[key].y += -1*that.fires[key].sX*4;
+
+                        if(that.fires[key].y<0||that.fires[key].x<0||that.fires[key].x>bgW||that.fires[key].y>bgH){
+                            delete that.fires[key]
+                        }
                     }
                 }
             }
         }
-
     };
 
     function doKeyDown(e){
@@ -245,16 +257,25 @@ function Tank(){
         }
     }
     var GameLoop = function(){
-//        createE();
+        for(var i in tanks){
+            tanks[i].doFire();
+        }
         DrawBg();
         for(var i in tanks){
             tanks[i].draw();
         }
-        gLoop = setTimeout(GameLoop, 1000 / 50);
+        if(countETanks>0&&tanks[0].life>0){
+            setTimeout(GameLoop, 1000 / 50);
+        }else{
+            if(tanks[0].life<=0)
+                alert('you lose!')
+            if(countETanks<=0)
+                alert('you win!')
+        }
     }
 
-    GameLoop();
     createTanks();
+    GameLoop();
     
     window.addEventListener('keydown',doKeyDown,true);
 }
