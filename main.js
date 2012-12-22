@@ -1,11 +1,93 @@
 function Tank(){
+//TODO:
+//1. add animation in move tank
+//3. если мы стерли клетку, то очищать массив wallNot и удалять данные из карты
 
     var canvas = document.getElementById('c'),
     context = canvas.getContext('2d'),
     bgW = 64*13, bgH = 64*10,
     tanks=[],
+    images = {
+        'p' : "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAMAAACdt4HsAAAADFBMVEUAAAD85pyEcgT8mjS3aVkRAAAAfklEQVR42u3WMQ7AIAxD0da5/51LBrBQXJ/Af6sU3kJU8fjezk4ECMARnCTgTgTYQHUc9gC62gVYAE4cJqruCFcB5iayEuFUuwBzE5UnFBbg2kQF8ER14jOA2UQPsADun8hhewsB5iaq+2CYBfh5J+Iv8UYKsIDqwBGb4AMAH8M+F62cJsO7AAAAAElFTkSuQmCC",
+        'e' : "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAIAAAAlC+aJAAAACXBIWXMAAAsTAAALEwEAmpwYAAABR0lEQVRoge2aPQrCQBSEjewRLDyNpAiewcIiB7H0ICksPIOkCJ7GwiMEsQvrCIObH98+mK97ZPeF4TE7gWyxWob+1cdlWIeFXrReqO/fkABrJMAaCbDGvYDQ3tqhOJwbsvR5v5CncZ9vNrvj760gBLdlTRa7n4AEWONeQBE7pms7srTaV3EJVoO9ZVXGJTcieJqfB4D7CUiANe4FBGKv6+njEbh2RiCnAf594H4CEmCNewEJSQzhCvC9APclHB4c9xOQAGvcC0hIYoC7FmwKraDknlYS540EWBMeXTMUSWkKcKtBiie9iJ8l7icgAda4FzA+iTnx2TARJXHeSIA1syUxOH5KK94ZcD8BCbDGvYDxSTzlC5mHa9Ji9xOQAGvcC0hIYrh5mPTHKfEaSR0XSuK8kQBrxicxeJr/6wX4jS1ASZw3EmDNG5W9eJza+PrVAAAAAElFTkSuQmCC",
+        '4' : "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABAAgMAAADXB5lNAAAACVBMVEW6BgCAgIDWMgC+PaXGAAAANklEQVR4nGNgAIJQBgiA0aQKrAKCUDAJoQdKIBQNkCVAYVhAGAhHgcCACVAhPEbTx2j6wCMAAKVYc/DEwHQUAAAAAElFTkSuQmCC",
+        'l' : "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABcAAAAXBAMAAAASBMmTAAAAFVBMVEUAAABta24nAABpEhtsam0BAQECAgLWB/Z5AAAAVklEQVR4Xp3PsQ2AMAxE0U8mOCQmyAiwAEUG8BJh/xG4wlIKohRcY7/GJ7OPiKMZbEYTIiG+uAGmUKk1AZTrpMcA8BtP+DRB9mTpBJFYvOBVAJ5LjOgFGjYO4RMWqT0AAAAASUVORK5CYII="
+    },
+    direction = 'urdl',
+    tankPositions=[['p','u',0,9],['e','d',0,0],['e','d',12,0],['e','d',3,0]],
+    maxCountETanks=14,
+    countLife =3,
+    wallNot = [];
+    
 
-    map=[
+    canvas.width = bgW+64*3;
+    canvas.height = bgH;
+
+    var DrawYouWin = function(){
+        var map=[
+          [0,0,0,0,0,0,0,0,0,0,0,0,0],
+          [0,4,0,4,0,0,0,0,0,0,0,0,0],
+          [0,4,0,4,0,4,4,4,0,4,0,4,0],
+          [0,0,4,0,0,4,0,4,0,4,0,4,0],
+          [0,0,4,0,0,4,4,4,0,4,4,4,0],
+          [0,0,0,0,0,0,0,0,0,0,0,0,0],
+          [0,4,0,0,0,4,0,4,0,4,4,0,0],
+          [0,4,0,4,0,4,0,4,0,4,0,4,0],
+          [0,0,4,0,4,0,0,4,0,4,0,4,0],
+          [0,0,0,0,0,0,0,0,0,0,0,0,0]
+      ]
+        drawAll(map);
+    }
+    var DrawYouLose = function(){
+        var map=[
+          [,,,,,,,,,,,,],
+          [,,,,,,,,,,,,],
+          [,,,,,,,,,,,,],
+          [,,,,,,,,,,,,],
+          [,,,,4,,4,,4,,,,],
+          [,,,,,,,,,,,,],
+          [,,,,,,,,,,,,],
+          [,,,,,,,,,,,,],
+          [,,,,,,,,,,,,],
+          [,,,,,,,,,,,,],
+      ]
+        drawAll(map);
+    }
+    function drawAll(map){
+        context.fillStyle = "#000000";
+        context.beginPath();
+        context.fillRect(0, 0, bgW, bgH);
+        context.fill();
+        
+        for(var i=0;i<10;i++){
+            for(var j=0;j<13;j++){
+                if(map[i][j]!=0){
+                    var img = new Image();
+                    img.src=images[map[i][j]];
+                    context.drawImage(img, j*64,i*64);
+                }
+            }
+        }
+        context.fillStyle = "#6d6b6e";
+        context.beginPath();
+        context.fillRect(bgW, 0, bgW+3*64, bgH);
+        context.fill();
+
+        context.fillStyle = "black";
+        context.font = "18pt Arial";
+        context.fillText("Cyberhull", bgW+12, 32);
+        context.font = "12pt Arial";
+        context.fillText("Battle city: 4kb", bgW+12, 56);
+
+        context.fillStyle = "red";
+        for(i=0; i < maxCountETanks;i++){
+            img = new Image();
+            img.src=images['l'];
+            context.drawImage(img, bgW+10+(i%2)*32,64-(i%2)*12+i*12);
+        }
+    }
+    var DrawBg = function(){
+        var map=[
           [0,0,0,0,0,0,0,0,0,0,0,0,0],
           [0,4,0,4,0,4,0,4,0,4,0,4,0],
           [0,4,0,4,0,0,0,4,0,4,0,4,0],
@@ -16,53 +98,37 @@ function Tank(){
           [0,4,0,4,0,4,4,4,4,4,0,4,0],
           [0,4,0,4,0,4,0,4,0,4,0,4,0],
           [0,0,0,0,0,0,0,0,0,0,0,0,0]
-      ]
-    canvas.width = bgW;
-    canvas.height = bgH;
+      ];
 
-    var DrawBg = function(size){
-        context.fillStyle = "#000000";
-        context.beginPath();
-        context.fillRect(0, 0, bgW, bgH);
-        context.fill();
-        
-        for(var i=0;i<10;i++){
-            for(var j=0;j<13;j++){
-                if(map[i][j]!=0){
-                    var img = new Image();
-                    img.src=map[i][j];
-                    context.drawImage(img, j*64,i*64);
-                }
-            }
-        }
-        
+        drawAll(map);
+
         context.beginPath();
         for(var key in wallNot){
             context.rect(wallNot[key].x,wallNot[key].y,wallNot[key].dx,wallNot[key].dy);
-            context.fillStyle = '#000000';
+            context.fillStyle = 'black';
             context.fill();
         }
     }
 
-    var direction = 'udrl';
-    var tankPositions=[['p','u',0,9],['e','d',0,0],['e','d',12,0]];
-    var countETanks =2;
-    var wallNot = [];
-    function createTanks(){
+
+    function createTanks(i){
         var newTank;
-        for(var i in tankPositions){
-            newTank = new Player;
-            newTank.init(tankPositions[i][0],tankPositions[i][1],64*tankPositions[i][2],64*tankPositions[i][3],i);
-            tanks[i] = newTank;
-        }
+        if(maxCountETanks>=(tankPositions.length-1))
+            for(var i in tankPositions){
+                if(!tanks[i]){
+                    newTank = new Player;
+                    newTank.init(tankPositions[i][0],tankPositions[i][1],64*tankPositions[i][2],64*tankPositions[i][3],i);
+                    tanks[i] = newTank;
+                }
+            }
+
     }
     function Player(){
         var that = this;
         that.image = new Image();
-        that.life = 3;
 
         that.init = function(src,direction,x,y,i){
-            that.image.src = src;
+            that.image.src = images[src];
             that.X = x;
             that.Y = y;
             that.sign = direction;
@@ -99,7 +165,7 @@ function Tank(){
                         imageData = context.getImageData(x,y,1,64);
                         break;
                 }
-                if(canMove(imageData)){
+                if(canMove(imageData,x, y)){
                     that.X = x;
                     that.Y = y;
                 }
@@ -124,8 +190,15 @@ function Tank(){
 
             that.fires.push(obj)
         }
-        function canMove(imageData){
-            for(var i=0;i<imageData.data.length;i=i+4){
+        function canMove(imageData,x,y){
+            for(var i in tanks){
+                if(i!=that.i){
+                    if(x>=tanks[i].X&&x<=(tanks[i].X+64)&&y>=tanks[i].Y&&y<=(tanks[i].Y+64) ){
+                        return false;
+                    }
+                }
+            }
+            for(i=0;i<imageData.data.length;i=i+4){
                 if(!(imageData.data[i]==0 && imageData.data[i]==imageData.data[i+1] && imageData.data[i+1]==imageData.data[i+2])){
                     return false;
                 }
@@ -133,27 +206,7 @@ function Tank(){
             return true;
         }
         that.changeDirection = function(){
-//Существует функция смены направления, которая при вызове в первом периоде поведения меняет направление
-//танка случайным образом,
-//во втором периоде даёт танкам с чётными номерами команду двигаться к первому игроку,
-//с нечётными — ко второму,
-//а в третьем даёт команду двигаться в сторону штаба.
-//
-//При пересечении вражеским танком границы тайла (когда обе коодринаты становятся кратны восьми),
-//существует вероятность 1/16, что для танка будет вызвана эта функция.
-//Если же координаты танка не были кратны восьми, либо же не была вызвана функция
-//смены направления, и при всём этом танк упирается в препятствие,
-//то с вероятностью 1/4 произойдёт следующее: танк сменит направление
-//на противоположное, если хотя бы одна из координат не кратна восьми,
-//в ином случае танку будет дана команда смены направления.
-//
-//При выполнении команды смены направления происходит несколько другое:
-//с вероятностью 1/2 вызывается описанная выше функция, иначе с равными
-//вероятностями циклически берётся либо предыдущее,
-//либо следующее направление из списка: вверх, влево, вниз,
-//вправо (т.е. танк поворачивается либо по часовой, либо против часовой стрелки).
-
-            if (that.X % 8 == 0 && that.Y % 8 == 0 && Math.floor((Math.floor(Math.random() * 128))) % 16 == 0)
+            if (that.X % 32 == 0 && that.Y % 32 == 0 && Math.floor((Math.floor(Math.random() * 128))) % 16 == 0)
             {
                 var index = (Math.floor(Math.random() * 4) - 1);
                 while(direction[index]==that.sign){
@@ -161,23 +214,26 @@ function Tank(){
                 }
                 that.move(direction[index]);
             }else{
-                that.move();
+                index+=2;
+                if(index>4)index-=4;
+                that.move(direction[index]);
+                
+                if(that.fires.length==0)
+                    that.fire();
             }
-            
-            if(that.fires.length==0)
-                that.fire();
+
         }
         that.isFire = function(x,y){
             for(var i in tanks){
                 if(i!=that.i && that.type!=tanks[i].type){
                     if(x>=tanks[i].X&&x<=(tanks[i].X+64)&&y>=tanks[i].Y&&y<=(tanks[i].Y+64) ){
                         if(tanks[i].type=='p'){
-                            tanks[i].life--;
-                            tanks[i].init(tankPositions[i][0],tankPositions[i][1],64*tankPositions[i][2],64*tankPositions[i][3],i);
+                            countLife--;
                         } else {
-                            tanks.splice(i,1);
-                            countETanks--;
+                            maxCountETanks--;
                         }
+                        delete tanks[i];
+                        setTimeout(createTanks,100);
                     }
                 }
             }
@@ -187,13 +243,13 @@ function Tank(){
             if(that.fires.length){
                 var imageData;
                 for(var key in that.fires){
-                    aX = Math.abs(that.fires[key].sX);
-                    aY = Math.abs(that.fires[key].sY);
-                    x = that.fires[key].x;
+                    var aX = Math.abs(that.fires[key].sX),
+                    aY = Math.abs(that.fires[key].sY),
+                    x = that.fires[key].x,
                     y = that.fires[key].y;
                     imageData = context.getImageData(x-aX*32-that.fires[key].sY,y-aY*32-that.fires[key].sX,Math.pow(64,aX),Math.pow(64,aY));
-                    
-                    if(!(that.fires[key].canMove = canMove(imageData))){
+
+                    if(!(that.fires[key].canMove = canMove(imageData,x, y))){
                         if(!that.isFire(x, y)){
                             //destroy wall
                             if(that.fires[key].sX==1)
@@ -248,30 +304,34 @@ function Tank(){
             case 37: tanks[0].move('l');break;
             case 39: tanks[0].move('r');break;
             case 32: tanks[0].fire();break;
+            case 27: clearTimeout(gLoop);break;
         }
     }
     var GameLoop = function(){
-        for(i in tanks) tanks[i].doFire();
-        
-        if(countETanks>0&&tanks[0].life>0){
+        for(var i in tanks) tanks[i].doFire();
+
+        if(maxCountETanks>0&&countLife>0){
             DrawBg();
             for(i in tanks) tanks[i].draw();
-
-            setTimeout(GameLoop, 1000 / 50);
+            gLoop = setTimeout(GameLoop, 1000 / 50);
         }else{
-            if(tanks[0].life<=0)
-                alert('you lose!')
-            if(countETanks<=0)
-                alert('you win!')
+            clearTimeout(gLoop)
+            
+            if(countLife<=0)
+                DrawYouLose();
+
+            if(maxCountETanks<=0)
+                DrawYouWin()
+
         }
     }
 
     createTanks();
     GameLoop();
-    
-    window.addEventListener('keydown',doKeyDown,true);
-}
 
+    window.addEventListener('keydown',doKeyDown,true);
+    var gloop;
+}
 window.addEventListener( 'load', function(){
     bm = new Tank;
 });
