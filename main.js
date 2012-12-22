@@ -54,7 +54,6 @@ function Tank(){
             newTank = new Player;
             newTank.init(tankPositions[i][0],tankPositions[i][1],64*tankPositions[i][2],64*tankPositions[i][3],i);
             tanks[i] = newTank;
-
         }
     }
     function Player(){
@@ -129,7 +128,6 @@ function Tank(){
             for(var i=0;i<imageData.data.length;i=i+4){
                 if(!(imageData.data[i]==0 && imageData.data[i]==imageData.data[i+1] && imageData.data[i+1]==imageData.data[i+2])){
                     return false;
-                    break;
                 }
             }
             return true;
@@ -157,7 +155,6 @@ function Tank(){
 
             if (that.X % 8 == 0 && that.Y % 8 == 0 && Math.floor((Math.floor(Math.random() * 128))) % 16 == 0)
             {
-                //выбирать путь в сторону игрока
                 var index = (Math.floor(Math.random() * 4) - 1);
                 while(direction[index]==that.sign){
                     index = (Math.floor(Math.random() * 4) - 1)
@@ -167,7 +164,7 @@ function Tank(){
                 that.move();
             }
             
-            if(!that.fires.length)
+            if(that.fires.length==0)
                 that.fire();
         }
         that.isFire = function(x,y){
@@ -176,12 +173,9 @@ function Tank(){
                     if(x>=tanks[i].X&&x<=(tanks[i].X+64)&&y>=tanks[i].Y&&y<=(tanks[i].Y+64) ){
                         if(tanks[i].type=='p'){
                             tanks[i].life--;
-                            console.log(tanks[i].life)
-                            //create new tank in start position
                             tanks[i].init(tankPositions[i][0],tankPositions[i][1],64*tankPositions[i][2],64*tankPositions[i][3],i);
                         } else {
-                            //удаляем вражеский танк
-                            delete tanks[i];
+                            tanks.splice(i,1);
                             countETanks--;
                         }
                     }
@@ -195,23 +189,24 @@ function Tank(){
                 for(var key in that.fires){
                     aX = Math.abs(that.fires[key].sX);
                     aY = Math.abs(that.fires[key].sY);
-
-                    imageData = context.getImageData(that.fires[key].x-aX*32-that.fires[key].sY,that.fires[key].y-aY*32-that.fires[key].sX,Math.pow(64,aX),Math.pow(64,aY));
+                    x = that.fires[key].x;
+                    y = that.fires[key].y;
+                    imageData = context.getImageData(x-aX*32-that.fires[key].sY,y-aY*32-that.fires[key].sX,Math.pow(64,aX),Math.pow(64,aY));
                     
                     if(!(that.fires[key].canMove = canMove(imageData))){
-                        if(!that.isFire(that.fires[key].x, that.fires[key].y)){
+                        if(!that.isFire(x, y)){
                             //destroy wall
-                            if(that.fires[key].sX==1)//u
-                                wallNot.push({x:that.fires[key].x-32,y:that.fires[key].y-16,dx:64,dy:16})
-                            if(that.fires[key].sX==-1)//d
-                                wallNot.push({x:that.fires[key].x-32,y:that.fires[key].y,dx:64,dy:16})
+                            if(that.fires[key].sX==1)
+                                wallNot.push({x:x-32,y:y-16,dx:64,dy:16})
+                            if(that.fires[key].sX==-1)
+                                wallNot.push({x:x-32,y:y,dx:64,dy:16})
 
-                            if(that.fires[key].sY==1)//l
-                                wallNot.push({x:that.fires[key].x-16,y:that.fires[key].y-32,dx:16,dy:64})
-                            if(that.fires[key].sY==-1)//r
-                                wallNot.push({x:that.fires[key].x,y:that.fires[key].y-32,dx:16,dy:64})
+                            if(that.fires[key].sY==1)
+                                wallNot.push({x:x-16,y:y-32,dx:16,dy:64})
+                            if(that.fires[key].sY==-1)
+                                wallNot.push({x:x,y:y-32,dx:16,dy:64})
                         }
-                        delete that.fires.splice(key,1)
+                        that.fires.splice(key,1);
                     }
                 }
             }
@@ -238,14 +233,13 @@ function Tank(){
                         that.fires[key].x += -1*that.fires[key].sY*4;
                         that.fires[key].y += -1*that.fires[key].sX*4;
 
-                        if(that.fires[key].y<0||that.fires[key].x<0||that.fires[key].x>bgW||that.fires[key].y>bgH){
-                            delete that.fires[key]
-                        }
+                        if(that.fires[key].y<0||that.fires[key].x<0||that.fires[key].x>bgW||that.fires[key].y>bgH)
+                            that.fires.splice(key,1);
                     }
                 }
             }
         }
-    };
+    }
 
     function doKeyDown(e){
         switch (e.keyCode) {
@@ -257,14 +251,12 @@ function Tank(){
         }
     }
     var GameLoop = function(){
-        for(var i in tanks){
-            tanks[i].doFire();
-        }
-        DrawBg();
-        for(var i in tanks){
-            tanks[i].draw();
-        }
+        for(i in tanks) tanks[i].doFire();
+        
         if(countETanks>0&&tanks[0].life>0){
+            DrawBg();
+            for(i in tanks) tanks[i].draw();
+
             setTimeout(GameLoop, 1000 / 50);
         }else{
             if(tanks[0].life<=0)
