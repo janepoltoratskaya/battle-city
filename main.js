@@ -1,8 +1,7 @@
 function Tank(){
 //TODO:
-//1. add animation in move tank
-//3. если мы стерли клетку, то очищать массив wallNot и удалять данные из карты
-
+//add orel
+//add ename tank move to orel
     var canvas = document.getElementById('c'),
     context = canvas.getContext('2d'),
     bgW = 64*13, bgH = 64*10,
@@ -10,15 +9,19 @@ function Tank(){
     images = {
         'p' : "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAMAAACdt4HsAAAADFBMVEUAAAD85pyEcgT8mjS3aVkRAAAAfklEQVR42u3WMQ7AIAxD0da5/51LBrBQXJ/Af6sU3kJU8fjezk4ECMARnCTgTgTYQHUc9gC62gVYAE4cJqruCFcB5iayEuFUuwBzE5UnFBbg2kQF8ER14jOA2UQPsADun8hhewsB5iaq+2CYBfh5J+Iv8UYKsIDqwBGb4AMAH8M+F62cJsO7AAAAAElFTkSuQmCC",
         'e' : "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAIAAAAlC+aJAAAACXBIWXMAAAsTAAALEwEAmpwYAAABR0lEQVRoge2aPQrCQBSEjewRLDyNpAiewcIiB7H0ICksPIOkCJ7GwiMEsQvrCIObH98+mK97ZPeF4TE7gWyxWob+1cdlWIeFXrReqO/fkABrJMAaCbDGvYDQ3tqhOJwbsvR5v5CncZ9vNrvj760gBLdlTRa7n4AEWONeQBE7pms7srTaV3EJVoO9ZVXGJTcieJqfB4D7CUiANe4FBGKv6+njEbh2RiCnAf594H4CEmCNewEJSQzhCvC9APclHB4c9xOQAGvcC0hIYoC7FmwKraDknlYS540EWBMeXTMUSWkKcKtBiie9iJ8l7icgAda4FzA+iTnx2TARJXHeSIA1syUxOH5KK94ZcD8BCbDGvYDxSTzlC5mHa9Ji9xOQAGvcC0hIYrh5mPTHKfEaSR0XSuK8kQBrxicxeJr/6wX4jS1ASZw3EmDNG5W9eJza+PrVAAAAAElFTkSuQmCC",
+        '0' : "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABAAgMAAADXB5lNAAAADFBMVEUAAAC6BgDWMgCAgIAGRGAtAAAAM0lEQVQ4y2NkgIJQIF4VxsDASIHAKpBgWOiAC/yH0hQJhFFDIHRwCFAhPEbTx2j6wCIAAFteWsGXoGdnAAAAAElFTkSuQmCC",
+        '1' : "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABAAgMAAADXB5lNAAAADFBMVEUAAAC6BgDWMgCAgIAGRGAtAAAAOElEQVR4Xu3IIQ4AMAxC0V2SS3LJrtmCqajA1PQJSP7prIUUOXonMAVI/VSIwgr49F7gox8LhREuGqlesGdYNvkAAAAASUVORK5CYII=",
+        "2" : "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABAAgMAAADXB5lNAAAADFBMVEUAAAC6BgDWMgCAgIAGRGAtAAAANUlEQVQ4jWMIBYL/QMwAA2QIrAKC/6GrVg20wH8ooEggFAIoE1gFBgMuQIXwGE0fo+kDjwAANU9esGISNt0AAAAASUVORK5CYII=",
+        '3' : "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABAAgMAAADXB5lNAAAADFBMVEUAAAC6BgDWMgCAgIAGRGAtAAAAOElEQVR4Xu3IIQ4AMAxC0V2SS3LJrtmCqajA1PQJSP5Bihy9E5gCpH4qRGEFfHov8NGPhcIJjbUuWlBesFKAXL0AAAAASUVORK5CYII=",
         '4' : "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABAAgMAAADXB5lNAAAACVBMVEW6BgCAgIDWMgC+PaXGAAAANklEQVR4nGNgAIJQBgiA0aQKrAKCUDAJoQdKIBQNkCVAYVhAGAhHgcCACVAhPEbTx2j6wCMAAKVYc/DEwHQUAAAAAElFTkSuQmCC",
         'l' : "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABcAAAAXBAMAAAASBMmTAAAAFVBMVEUAAABta24nAABpEhtsam0BAQECAgLWB/Z5AAAAVklEQVR4Xp3PsQ2AMAxE0U8mOCQmyAiwAEUG8BJh/xG4wlIKohRcY7/GJ7OPiKMZbEYTIiG+uAGmUKk1AZTrpMcA8BtP+DRB9mTpBJFYvOBVAJ5LjOgFGjYO4RMWqT0AAAAASUVORK5CYII="
     },
     direction = 'urdl',
-    tankPositions=[['p','u',0,9],['e','d',0,0],['e','d',12,0],['e','d',3,0]],
+    tankPositions=[['p','u',4,9]
+//        ,['e','d',0,0],['e','d',12,0],['e','d',3,0]
+    ],
     maxCountETanks=14,
-    countLife =3,
-    wallNot = [];
-    
+    countLife =3;
 
     canvas.width = bgW+64*3;
     canvas.height = bgH;
@@ -43,16 +46,16 @@ function Tank(){
     }
     
     var map=[
-      [0,0,0,0,0,0,0,0,0,0,0,0,0],
-      [0,4,0,4,0,4,0,4,0,4,0,4,0],
-      [0,4,0,4,0,0,0,4,0,4,0,4,0],
-      [0,0,0,0,4,4,0,4,0,0,0,0,0],
-      [0,4,0,4,0,4,0,4,0,4,0,4,0],
-      [0,4,0,4,0,4,0,4,0,4,0,4,0],
-      [0,0,0,0,0,4,0,4,0,0,0,0,0],
-      [0,4,0,4,0,4,4,4,4,4,0,4,0],
-      [0,4,0,4,0,4,0,4,0,4,0,4,0],
-      [0,0,0,0,0,0,0,0,0,0,0,0,0]
+      [5,5,5,5,5,5,5,5,5,5,5,5,5],
+      [5,4,5,4,5,4,5,4,5,4,5,4,5],
+      [5,4,5,4,5,4,4,4,5,4,5,4,5],
+      [5,4,5,4,5,4,5,4,5,4,5,4,5],
+      [5,5,5,5,5,5,5,5,5,5,5,5,5],
+      [4,5,4,4,4,5,4,5,4,4,4,5,4],
+      [5,5,5,5,5,5,4,5,5,5,5,5,5],
+      [5,4,5,4,5,5,5,5,5,4,5,4,5],
+      [5,4,5,4,5,4,4,4,5,4,5,4,5],
+      [5,5,5,5,5,4,5,4,5,5,5,5,5]
   ];
     var DrawBg = function(){
         context.fillStyle = "#000000";
@@ -62,13 +65,14 @@ function Tank(){
 
         for(var i=0;i<10;i++){
             for(var j=0;j<13;j++){
-                if(map[i][j]!=0){
+                if(map[i][j]!=5){
                     var img = new Image();
                     img.src=images[map[i][j]];
                     context.drawImage(img, j*64,i*64);
                 }
             }
         }
+
         context.fillStyle = "#6d6b6e";
         context.beginPath();
         context.fillRect(bgW, 0, bgW+3*64, bgH);
@@ -85,13 +89,6 @@ function Tank(){
             img = new Image();
             img.src=images['l'];
             context.drawImage(img, bgW+10+(i%2)*32,64-(i%2)*12+i*12);
-        }
-
-        context.beginPath();
-        for(var key in wallNot){
-            context.rect(wallNot[key].x,wallNot[key].y,wallNot[key].dx,wallNot[key].dy);
-            context.fillStyle = 'black';
-            context.fill();
         }
     }
 
@@ -232,20 +229,25 @@ function Tank(){
                     aY = Math.abs(that.fires[key].sY),
                     x = that.fires[key].x,
                     y = that.fires[key].y;
-                    imageData = context.getImageData(x-aX*32-that.fires[key].sY,y-aY*32-that.fires[key].sX,Math.pow(64,aX),Math.pow(64,aY));
+                    imageData = context.getImageData(x-aX*4-that.fires[key].sY,y-aY*4-that.fires[key].sX,Math.pow(8,aX),Math.pow(8,aY));
 
                     if(!(that.fires[key].canMove = canMove(imageData,x, y))){
                         if(!that.isFire(x, y)){
-                            //destroy wall
-                            if(that.fires[key].sX==1)
-                                wallNot.push({x:x-32,y:y-16,dx:64,dy:16})
+                            var i=Math.floor(x/64),j=Math.floor(y/64),newTypeWall;
+                            if(that.fires[key].sX==1){
+                                if(y%64==0)j--;
+                                newTypeWall=3;
+                            }
                             if(that.fires[key].sX==-1)
-                                wallNot.push({x:x-32,y:y,dx:64,dy:16})
-
-                            if(that.fires[key].sY==1)
-                                wallNot.push({x:x-16,y:y-32,dx:16,dy:64})
+                                newTypeWall=1;
+                            if(that.fires[key].sY==1){
+                                if(x%64==0)i--;
+                                newTypeWall=2;
+                            }
                             if(that.fires[key].sY==-1)
-                                wallNot.push({x:x,y:y-32,dx:16,dy:64})
+                                newTypeWall=0;
+                            if(map[j][i]==4) map[j][i]=newTypeWall;
+                            else if(map[j][i]==newTypeWall) map[j][i]=5;
                         }
                         that.fires.splice(key,1);
                     }
@@ -274,7 +276,7 @@ function Tank(){
                         that.fires[key].x += -1*that.fires[key].sY*4;
                         that.fires[key].y += -1*that.fires[key].sX*4;
 
-                        if(that.fires[key].y<0||that.fires[key].x<0||that.fires[key].x>bgW||that.fires[key].y>bgH)
+                        if(that.fires[key].y<=0||that.fires[key].x<=0||that.fires[key].x>=bgW||that.fires[key].y>=bgH)
                             that.fires.splice(key,1);
                     }
                 }
@@ -298,7 +300,7 @@ function Tank(){
         if(maxCountETanks>0&&countLife>0){
             DrawBg();
             for(i in tanks) tanks[i].draw();
-            gLoop = setTimeout(GameLoop, 1000 / 50);
+            gLoop = setTimeout(GameLoop, 100);
         }else{
             clearTimeout(gLoop)
             

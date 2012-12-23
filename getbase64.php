@@ -1,4 +1,4 @@
 <?php
-$image = file_get_contents('life.png');
+$image = file_get_contents('block_0.png');
 print_r(base64_encode($image));
 ?>
