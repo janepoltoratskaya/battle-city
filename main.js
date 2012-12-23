@@ -14,12 +14,14 @@ function Tank(){
         "2" : "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABAAgMAAADXB5lNAAAADFBMVEUAAAC6BgDWMgCAgIAGRGAtAAAANUlEQVQ4jWMIBYL/QMwAA2QIrAKC/6GrVg20wH8ooEggFAIoE1gFBgMuQIXwGE0fo+kDjwAANU9esGISNt0AAAAASUVORK5CYII=",
         '3' : "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABAAgMAAADXB5lNAAAADFBMVEUAAAC6BgDWMgCAgIAGRGAtAAAAOElEQVR4Xu3IIQ4AMAxC0V2SS3LJrtmCqajA1PQJSP5Bihy9E5gCpH4qRGEFfHov8NGPhcIJjbUuWlBesFKAXL0AAAAASUVORK5CYII=",
         '4' : "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABAAgMAAADXB5lNAAAACVBMVEW6BgCAgIDWMgC+PaXGAAAANklEQVR4nGNgAIJQBgiA0aQKrAKCUDAJoQdKIBQNkCVAYVhAGAhHgcCACVAhPEbTx2j6wCMAAKVYc/DEwHQUAAAAAElFTkSuQmCC",
-        'l' : "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABcAAAAXBAMAAAASBMmTAAAAFVBMVEUAAABta24nAABpEhtsam0BAQECAgLWB/Z5AAAAVklEQVR4Xp3PsQ2AMAxE0U8mOCQmyAiwAEUG8BJh/xG4wlIKohRcY7/GJ7OPiKMZbEYTIiG+uAGmUKk1AZTrpMcA8BtP+DRB9mTpBJFYvOBVAJ5LjOgFGjYO4RMWqT0AAAAASUVORK5CYII="
+        'l' : "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABcAAAAXBAMAAAASBMmTAAAAFVBMVEUAAABta24nAABpEhtsam0BAQECAgLWB/Z5AAAAVklEQVR4Xp3PsQ2AMAxE0U8mOCQmyAiwAEUG8BJh/xG4wlIKohRcY7/GJ7OPiKMZbEYTIiG+uAGmUKk1AZTrpMcA8BtP+DRB9mTpBJFYvOBVAJ5LjOgFGjYO4RMWqT0AAAAASUVORK5CYII=",
+        'o':  "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABAAgMAAADXB5lNAAAADFBMVEUAAABeDRFwbnF0cnVF6HKGAAAAjUlEQVR4Xq3Q0Q3DMAgE0NuoIzBF5knm8RJmia4Tijkp5RPknCx0eh9IGG9kmiYQg/XB8YKzz9U1RoCWwWvM76kQdwIgDVisnKlyfxUsog6faAmkAQdx3eMASAJFAbjkWaFlOE5/fzCCWQAyKKrAbMAk3JPAJRDjnzdhjAtPHJgy8I4dSKdtAI97Dfr5AXx57WmKpPLpAAAAAElFTkSuQmCC"
     },
     direction = 'urdl',
     tankPositions=[['p','u',4,9]
-//        ,['e','d',0,0],['e','d',12,0],['e','d',3,0]
+        ,['e','d',0,0],['e','d',12,0],['e','d',3,0]
     ],
+    orel={x:6*64,y:9*64},
     maxCountETanks=14,
     countLife =3;
 
@@ -72,6 +74,9 @@ function Tank(){
                 }
             }
         }
+        var img = new Image();
+        img.src=images['o'];
+        context.drawImage(img, orel.x,orel.y);
 
         context.fillStyle = "#6d6b6e";
         context.beginPath();
@@ -173,17 +178,18 @@ function Tank(){
             that.fires.push(obj)
         }
         function canMove(imageData,x,y){
+            if(x>=orel.x&&x<=(orel.x+64)&&y>=orel.y&&y<=(orel.y+64) )
+                return false;
+
             for(var i in tanks){
                 if(i!=that.i){
-                    if(x>=tanks[i].X&&x<=(tanks[i].X+64)&&y>=tanks[i].Y&&y<=(tanks[i].Y+64) ){
+                    if(x>=tanks[i].X&&x<=(tanks[i].X+64)&&y>=tanks[i].Y&&y<=(tanks[i].Y+64) )
                         return false;
-                    }
                 }
             }
             for(i=0;i<imageData.data.length;i=i+4){
-                if(!(imageData.data[i]==0 && imageData.data[i]==imageData.data[i+1] && imageData.data[i+1]==imageData.data[i+2])){
+                if(!(imageData.data[i]==0 && imageData.data[i]==imageData.data[i+1] && imageData.data[i+1]==imageData.data[i+2]))
                     return false;
-                }
             }
             return true;
         }
@@ -206,19 +212,21 @@ function Tank(){
 
         }
         that.isFire = function(x,y){
-            for(var i in tanks){
-                if(i!=that.i && that.type!=tanks[i].type){
-                    if(x>=tanks[i].X&&x<=(tanks[i].X+64)&&y>=tanks[i].Y&&y<=(tanks[i].Y+64) ){
-                        if(tanks[i].type=='p'){
-                            countLife--;
-                        } else {
-                            maxCountETanks--;
+            if(x>=orel.x&&x<=(orel.x+64)&&y>=orel.y&&y<=(orel.y+64) )
+                countLife--;
+            else
+                for(var i in tanks)
+                    if(i!=that.i && that.type!=tanks[i].type){
+                        if(x>=tanks[i].X&&x<=(tanks[i].X+64)&&y>=tanks[i].Y&&y<=(tanks[i].Y+64) ){
+                            if(tanks[i].type=='p'){
+                                countLife--;
+                            } else {
+                                maxCountETanks--;
+                            }
+                            delete tanks[i];
+                            setTimeout(createTanks,100);
                         }
-                        delete tanks[i];
-                        setTimeout(createTanks,100);
                     }
-                }
-            }
             return false;
         }
         that.doFire = function(){
