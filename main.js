@@ -1,6 +1,5 @@
 function Tank(){
 //TODO:
-//add orel
 //add ename tank move to orel
     var canvas = document.getElementById('c'),
     context = canvas.getContext('2d'),
